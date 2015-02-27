@@ -1,0 +1,5 @@
+---
+name: openjdk7
+dependencies: {}
+files:
+  - openjdk7/openjdk-1.7.0-u60-unofficial-linux-amd64-image.zip

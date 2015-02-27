@@ -1,0 +1,66 @@
+<%
+director_uuid = 'CHANGE-ME'
+deployment_name = 'crate'
+num_crate_nodes = 3
+%>
+---
+name: <%= deployment_name %>
+director_uuid: <%= director_uuid %>
+
+releases:
+ - name: crate
+   version: latest
+
+compilation:
+  workers: 1
+  network: default
+  reuse_compilation_vms: true
+  cloud_properties:
+    instance_type: m1.xlarge
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 32
+  serial: false
+
+networks:
+  - name: default
+    type: dynamic
+    cloud_properties:
+      security_groups:
+        - bosh
+        - <%= deployment_name %
+
+  - name: elastic
+    type: vip
+    cloud_properties: {}
+
+resource_pools:
+  - name: default
+    network: default
+    size: <%= num_crate_nodes %>
+    stemcell:
+      name: bosh-aws-xen-ubuntu-trusty-go_agent
+      version: latest
+    cloud_properties:
+      instance_type: m1.xlarge
+
+jobs:
+  - name: crate
+    templates:
+      - name: crate
+    instances: <%= num_crate_nodes %>
+    resource_pool: default
+    persistent_disk: 65536
+    networks:
+      - name: default
+        default: [dns, gateway]
+
+properties:
+  crate:
+    master_nodes:
+      <% num_crate_nodes.times do |i| %>
+      <%= "- #{i}.crate.default.#{deployment_name}.microbosh\n" %>
+      <% end %>

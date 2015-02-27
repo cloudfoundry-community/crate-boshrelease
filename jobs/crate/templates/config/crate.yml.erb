@@ -1,0 +1,863 @@
+######################### Crate Configuration Example #########################
+
+# The default configuration offers the ability to use Crate right away.
+# The purpose of this file is to give operators an overview of the various
+# different configuration settings. To read the full documentation go to
+# <https://docs.crate.io/>
+
+# As mentioned before, you can use Crate right away. For fine-tuning consider
+# to configure Crate as you need or want it to behave.
+# Use this file to fine-tune your Crate cluster. If you have any questions
+# you are very welcome to conact us on our IRC channel #crate
+# (irc.freenode.net).
+
+# Any element in the configuration can be replaced with environment variables
+# by placing them in ${...} notation. For example:
+#
+# node.rack: ${RACK_ENV_VAR}
+
+
+################################### Cluster ###################################
+
+# Cluster name identifies your cluster for auto-discovery. If you're running
+# multiple clusters on the same network, make sure you're using unique names.
+#
+cluster.name: "<%= p('crate.cluster.name') %>"
+
+# The graceful_stop namespace defines settings for a graceful stop
+# procedure of nodes within the cluster.
+#
+# The minimum data availability the cluster needs to ensure when a certain node
+# is shut down. By default the cluster ensures availability of primary shards
+# but not replicas. Other options are "all" and "none".
+#
+# cluster.graceful_stop.min_availability: primaries
+<% if_p('crate.cluster.graceful_stop.min_availability') do |graceful_stop_min_availability| %>
+cluster.graceful_stop.min_availability: <%= graceful_stop_min_availability %>
+<% end %>
+
+#
+# The cluster may reallocate shards to ensure minimum data availabillity before
+# a certain node shuts down.
+#
+# cluster.graceful_stop.reallocate: true
+<% if_p('crate.cluster.graceful_stop.reallocate') do |graceful_stop_reallocate| %>
+cluster.graceful_stop.reallocate: <%= graceful_stop_reallocate %>
+<% end %>
+
+#
+# The time to wait for the reallocation process to be finished.
+#
+# cluster.graceful_stop.timeout: 2h
+<% if_p('crate.cluster.graceful_stop.timeout') do |graceful_stop_timeout| %>
+cluster.graceful_stop.timeout: <%= graceful_stop_timeout %>
+<% end %>
+
+#
+# The force setting allows you to force a shutdown of a node when the graceful
+# shutdown process runs into the cluster.graceful_stop.timeout.
+#
+# cluster.graceful_stop.force = all
+<% if_p('crate.cluster.graceful_stop.force') do |graceful_stop_force| %>
+cluster.graceful_stop.force: <%= graceful_stop_force %>
+<% end %>
+
+#
+# By default the regular stop procedure does not consider the graceful_stop
+# settings, but only sending the USR2 signal to the process does.
+#
+# In most cases you want to allow all kinds of shards allocations.
+# cluster.routing.allocation.enable = all
+#
+# However, you can limit shard allocations to certain kinds of shards,
+# for example if you perform a rolling cluster upgrade.
+# cluster.routing.allocation.enable = new_primaries
+<% if_p('crate.cluster.routing.allocation.enable') do |routing_allocation_enable| %>
+cluster.routing.allocation.enable: <%= routing_allocation_enable %>
+<% end %>
+
+#################################### Node #####################################
+
+# Node names are generated dynamically on startup, so you're relieved
+# from configuring them manually. You can tie this node to a specific name:
+#
+node.name: "<%= name %>-node-<%= index %>"
+
+# Every node can be configured to allow or deny being eligible as the master,
+# and to allow or deny to store the data.
+#
+# Allow this node to be eligible as a master node (enabled by default):
+#
+# node.master: true
+#
+# Allow this node to store data (enabled by default):
+#
+# node.data: true
+
+# You can exploit these settings to design advanced cluster topologies.
+#
+# 1. You want this node to never become a master node, only to hold data.
+#    This will be the "workhorse" of your cluster.
+#
+# node.master: false
+# node.data: true
+#
+# 2. You want this node to only serve as a master: to not store any data and
+#    to have free resources. This will be the "coordinator" of your cluster.
+#
+# node.master: true
+# node.data: false
+#
+# 3. You want this node to be neither master nor data node, but
+#    to act as a "search load balancer" (fetching data from nodes,
+#    aggregating results, etc.)
+#
+# node.master: false
+# node.data: false
+<% if_p('crate.node.master') do |node_master| %>
+node.master: <%= node_masters %>
+<% end %>
+<% if_p('crate.node.data') do |node_data| %>
+node.data: <%= node_data %>
+<% end %>
+
+# Inspect the cluster state via GUI tools
+# such as Crate Admin [http://localhost:4200/admin/].
+
+# A node can have generic attributes associated with it, which can later be
+# used for customized shard allocation filtering, or allocation awareness.
+# An attribute is a simple key value pair, similar to node.key: value, here is
+# an example:
+#
+# node.rack: rack314
+<% if_p('crate.node.rack') do |node_rack| %>
+node.rack: <%= node_rack %>
+<% end %>
+
+# By default, multiple nodes are allowed to start from the same installation
+# location to disable it, set the following:
+# node.max_local_storage_nodes: 1
+<% if_p('crate.node.max_local_storage_nodes') do |max_local_storage_nodes| %>
+node.max_local_storage_nodes: <%= max_local_storage_nodes %>
+<% end %>
+
+#################################### Table ####################################
+
+# You can set a number of options (such as shard/replica options, mapping
+# or analyzer definitions, translog settings, ...) for tables globally,
+# in this file.
+#
+# Note, that it makes more sense to configure table settings specifically for
+# a certain table when creating it.
+
+# Set the number of shards (splits) of a table (5 by default):
+#
+# index.number_of_shards: 5
+
+# Set the number of replicas (additional copies) of a table (1 by default):
+#
+# index.number_of_replicas: 1
+
+# Note, that for development on a local machine, with small tables, it usually
+# makes sense to "disable" the distributed features:
+#
+# index.number_of_shards: 1
+# index.number_of_replicas: 0
+
+# These settings directly affect the performance of table and search operations
+# in your cluster. Assuming you have enough machines to hold shards and
+# replicas, the rule of thumb is:
+#
+# 1. Having more *shards* enhances the _indexing_ performance and allows to
+#    _distribute_ a big table across machines.
+# 2. Having more *replicas* enhances the _search_ performance and improves the
+#    cluster _availability_.
+#
+# The "number_of_shards" is a one-time setting for a table.
+#
+# Crate takes care about load balancing, relocating, gathering the
+# results from nodes, etc. Experiment with different settings to fine-tune
+# your setup.
+
+# Use the Table Status API (<http://localhost:4200/A/_status>) to inspect
+# the table status.
+
+<% if_p('crate.index.number_of_shards') do |number_of_shards| %>
+index.number_of_shards: <%= number_of_shards %>
+<% end %>
+<% if_p('crate.index.number_of_replicas') do |number_of_replicas| %>
+index.number_of_replicas: <%= number_of_replicas %>
+<% end %>
+
+#################################### Paths ####################################
+
+# Path to directory containing configuration (this file and logging.yml):
+#
+path.conf: /var/vcap/jobs/crate/config
+
+# Path to directory where to store table data allocated for this node.
+#
+path.data: /var/vcap/store/crate
+#
+# Can optionally include more than one location, causing data to be striped across
+# the locations (a la RAID 0) on a file level, favouring locations with most free
+# space on creation. For example:
+#
+# path.data: /path/to/data1,/path/to/data2
+
+# Path to temporary files:
+#
+path.work: /var/vcap/sys/tmp/crate
+
+# Path to log files:
+#
+path.logs: /var/vcap/sys/log/crate
+
+# Path to where plugins are installed:
+#
+# path.plugins: /path/to/plugins
+
+# path:
+#     logs: /var/log/crate
+#     data: /var/lib/crate
+
+#################################### Plugin ###################################
+
+# If a plugin listed here is not installed for current node, the node will not start.
+#
+# plugin.mandatory: mapper-attachments,lang-groovy
+
+
+################################### Memory ####################################
+
+# Crate performs poorly when JVM starts swapping: you should ensure that
+# it _never_ swaps.
+#
+# Set this property to true to lock the memory:
+#
+# bootstrap.mlockall: true
+<% if_p('crate.bootstrap.mlockall') do |bootstrap_mlockall| %>
+bootstrap.mlockall: <%= bootstrap_mlockall %>
+<% end %>
+
+# Make sure that the machine has enough memory to allocate for Crate, leaving
+# enough memory for the operating system itself.
+# You can allocate memory for Crate as follows:
+#  - Set CRATE_MIN_MEM and CRATE_MAX_MEM environment variables
+#    (We recommend to set MIN and MAX to the same value).
+#  - Set CRATE_HEAP_SIZE environment varaible. This sets MIN and MAX to the
+#    same value for you.
+#
+# You should also make sure that the Crate process is allowed to lock
+# the memory, eg. by using `ulimit -l unlimited`.
+
+
+############################## Network And HTTP ###############################
+
+# Crate, by default, binds itself to the 0.0.0.0 address, and listens
+# on port [4200-4300] for HTTP traffic and on port [4300-4400] for node-to-node
+# communication. (the range means that if the port is busy, it will automatically
+# try the next port).
+
+# Set the bind address specifically (IPv4 or IPv6):
+#
+# network.bind_host: 192.168.0.1
+<% if_p('crate.network.bind_host') do |network_bind_host| %>
+network.bind_host: <%= network_bind_host %>
+<% end %>
+
+# Set the address other nodes will use to communicate with this node. If not
+# set, it is automatically derived. It must point to an actual IP address.
+#
+# network.publish_host: 192.168.0.1
+<% if_p('crate.network.publish_host') do |network_publish_host| %>
+network.publish_host: <%= network_publish_host %>
+<% end %>
+
+# Set both 'bind_host' and 'publish_host':
+#
+# network.host: 192.168.0.1
+<% if_p('crate.network.host') do |network_host| %>
+network.host: <%= network_host %>
+<% end %>
+
+# Set a custom port for the node to node communication (4300 by default):
+#
+# transport.tcp.port: 4300
+<% if_p('crate.transport.tcp.port') do |transport_tcp_port| %>
+transport.tcp.port: <%= transport_tcp_port %>
+<% end %>
+
+# Enable compression for all communication between nodes (disabled by default):
+#
+# transport.tcp.compress: true
+<% if_p('crate.transport.tcp.compress') do |transport_tcp_compress| %>
+transport.tcp.compress: <%= transport_tcp_compress %>
+<% end %>
+
+# Set a custom port to listen for HTTP traffic:
+#
+# http.port: 4200
+<% if_p('crate.http.port') do |http_port| %>
+http.port: <%= http_port %>
+<% end %>
+
+# Set a custom allowed content length:
+#
+# http.max_content_length: 100mb
+<% if_p('crate.http.max_content_length') do |http_max_content_length| %>
+http.max_content_length: <%= http_max_content_length %>
+<% end %>
+
+# Disable HTTP completely:
+#
+# http.enabled: false
+<% if_p('crate.http.enabled') do |http_enabled| %>
+http.enabled: <%= http_enabled %>
+<% end %>
+
+############################# Recovery Throttling #############################
+
+# These settings allow to control the process of shards allocation between
+# nodes during initial recovery, replica allocation, rebalancing,
+# or when adding and removing nodes.
+
+# Set the number of concurrent recoveries happening on a node:
+#
+# 1. During the initial recovery
+#
+# cluster.routing.allocation.node_initial_primaries_recoveries: 4
+#
+# 2. During adding/removing nodes, rebalancing, etc
+#
+# cluster.routing.allocation.node_concurrent_recoveries: 2
+<% if_p('crate.cluster.routing.allocation.node_concurrent_recoveries') do |node_concurrent_recoveries| %>
+cluster.routing.allocation.node_concurrent_recoveries: <%= node_concurrent_recoveries %>
+<% end %>
+
+# Set to throttle throughput when recovering (eg. 100mb, by default unlimited):
+#
+# indices.recovery.max_size_per_sec: 20mb
+<% if_p('crate.indices.recovery.max_size_per_sec') do |recovery_max_size_per_sec| %>
+indices.recovery.max_size_per_sec: <%= recovery_max_size_per_sec %>
+<% end %>
+
+# Set to limit the number of open concurrent streams when
+# recovering a shard from a peer:
+#
+# indices.recovery.concurrent_streams: 5
+<% if_p('crate.indices.recovery.concurrent_streams') do |recovery_concurrent_streams| %>
+indices.recovery.concurrent_streams: <%= recovery_concurrent_streams %>
+<% end %>
+
+# Specifies the chunk size used to copy the shard data from the
+# source shard.
+#
+# indices.recovery.file_chunk_size: 512kb
+<% if_p('crate.indices.recovery.file_chunk_size') do |recovery_file_chunk_size| %>
+indices.recovery.file_chunk_size: <%= recovery_file_chunk_size %>
+<% end %>
+
+# Specifies how many transaction log lines should be transfered
+# between shards in a single request during the recovery process.
+# Ignored if indices.recovery.translog_size is reached first.
+#
+# indices.recovery.translog_ops: 1000
+<% if_p('crate.indices.recovery.translog_ops') do |recovery_translog_ops| %>
+indices.recovery.translog_ops: <%= recovery_translog_ops %>
+<% end %>
+
+# Specifies how much data of the transaction log should be
+# transfered between shards in a single request during the recovery
+# process.
+#
+# indices.recovery.translog_size: 512kb
+<% if_p('crate.indices.recovery.translog_size') do |recovery_translog_size| %>
+indices.recovery.translog_size: <%= recovery_translog_size %>
+<% end %>
+
+# Define if transferred data should be compressed during the
+# recovery process.
+#
+# indices.recovery.compress: true
+<% if_p('crate.indices.recovery.compress') do |recovery_compress| %>
+indices.recovery.compress: <%= recovery_compress %>
+<% end %>
+
+# Specifies the maximum number of bytes that can be transferred
+# during shard recovery per seconds. Limiting
+# can be disabled by setting it to `0`. Higher values
+# may result in higher network utilization, but also faster recovery process.
+#
+# indices.recovery.max_bytes_per_sec: 20mb
+<% if_p('crate.indices.recovery.max_bytes_per_sec') do |recovery_max_bytes_per_sec| %>
+indices.recovery.max_bytes_per_sec: <%= recovery_max_bytes_per_sec %>
+<% end %>
+
+############################ Store Level Throttling ###########################
+
+# Allows to throttle `merge` (or `all`) process of the store
+# module. Options are: `all | merge | none`
+#
+# indices.store.throttle.type: merge
+<% if_p('crate.indices.store.throttle.type') do |throttle_type| %>
+indices.store.throttle.type: <%= throttle_type %>
+<% end %>
+
+# If throttling is enabled by indices.store.throttle.type, this
+# setting specifies the maximum bytes per second a store module
+# process can operate with.
+#
+# indices.store.throttle.max_bytes_per_sec: 20mb
+<% if_p('crate.indices.store.throttle.max_bytes_per_sec') do |throttle_max_bytes_per_sec| %>
+indices.store.throttle.max_bytes_per_sec: <%= throttle_max_bytes_per_sec %>
+<% end %>
+
+################################## Discovery ##################################
+
+# Discovery infrastructure ensures nodes can be found within a cluster
+# and master node is elected. Multicast discovery is the default.
+
+# Set to ensure a node sees M other master eligible nodes to be considered
+# operational within the cluster. Its recommended to set it to a higher value
+# than 1 when running more than 2 nodes in the cluster.
+#
+# We highly recommend to set the minimum master nodes as follows:
+#   minimum_master_nodes: (N / 2) + 1 where N is the cluster size
+# That will ensure a full recovery of the cluster state.
+#
+# discovery.zen.minimum_master_nodes: 1
+<% if_p('crate.discovery.zen.minimum_master_nodes') do |minimum_master_nodes| %>
+discovery.zen.minimum_master_nodes: <%= minimum_master_nodes %>
+<% end %>
+
+# Set the time to wait for ping responses from other nodes when discovering.
+# Set this option to a higher value on a slow or congested network
+# to minimize discovery failures:
+#
+# discovery.zen.ping.timeout: 3s
+#
+<% if_p('crate.discovery.zen.ping.timeout') do |ping_timeout| %>
+discovery.zen.ping.timeout: <%= ping_timeout %>
+<% end %>
+
+# Time a node is waiting for responses from other nodes to a published
+# cluster state.
+#
+# discovery.zen.publish_timeout: 30s
+<% if_p('crate.discovery.zen.publish_timeout') do |publish_timeout| %>
+discovery.zen.publish_timeout: <%= publish_timeout %>
+<% end %>
+
+# Unicast discovery allows to explicitly control which nodes will be used
+# to discover the cluster. It can be used when multicast is not present,
+# or to restrict the cluster communication-wise.
+# For example, Amazon Web Services doesn't support multicast discovery.
+# Therefore, you need to specify the instances you want to connect to a
+# cluster as described in the following steps:
+#
+# 1. Disable multicast discovery (enabled by default):
+#
+discovery.zen.ping.multicast.enabled: <%= p('crate.discovery.zen.ping.multicast.enabled') %>
+#
+# 2. Configure an initial list of master nodes in the cluster
+#    to perform discovery when new nodes (master or data) are started:
+#
+# If you want to debug the discovery process, you can set a logger in
+# 'config/logging.yml' to help you doing so.
+#
+discovery.zen.ping.unicast.hosts: [<%= p('crate.master_nodes').map { |node| "#{node}" }.join(',') %>]
+
+# Ping configuration
+#
+# discovery.zen.fd.ping_timeout: 30s
+# discovery.zen.fd.ping_retries: 3
+# discovery.zen.fd.ping_interval: 1s
+#
+<% if_p('crate.discovery.zen.fd.ping_timeout') do |fd_ping_timeout| %>
+discovery.zen.fd.ping_timeout: <%= fd_ping_timeout %>
+<% end %>
+<% if_p('crate.discovery.zen.fd.ping_retries') do |fd_ping_retries| %>
+discovery.zen.fd.ping_retries: <%= fd_ping_retries %>
+<% end %>
+<% if_p('crate.discovery.zen.fd.ping_interval') do |fd_ping_interval| %>
+discovery.zen.fd.ping_interval: <%= fd_ping_interval %>
+<% end %>
+
+############################# Routing Allocation #############################
+
+# Allows to control shard allocation.
+# Options are: `all | new_primaries`
+#
+# `all` allows all shard allocations, the cluster can allocate all kinds of
+# shards.
+#
+# `new_primaries` allows allocations for new primary shards only. This means
+# that for example a newly added node will not allocate any replicas. However
+# it is still possible to allocate new primary shards for new indices.
+# Whenever you want to perform a zero downtime upgrade of your cluster
+# you need to set this value before gracefully stopping the first
+# node and reset it to `all` after starting the last updated node.
+#
+# cluster.routing.allocation.enable: all
+<% if_p('crate.cluster.routing.allocation.enable') do |allocation_enable| %>
+cluster.routing.allocation.enable: <%= allocation_enable %>
+<% end %>
+
+# Allow to control when rebalancing will happen based on the total
+# state of all the indices shards in the cluster. Defaulting to
+# `indices_all_active` to reduce chatter during initial recovery.
+# Options are: `always | indices_primary_active | indices_all_active`
+#
+# cluster.routing.allocation.allow_rebalance: indices_all_active
+<% if_p('crate.cluster.routing.allocation.allow_rebalance') do |allow_rebalance| %>
+cluster.routing.allocation.allow_rebalance: <%= allow_rebalance %>
+<% end %>
+
+# Define how many concurrent rebalancing tasks are allowed cluster
+# wide.
+#
+# cluster.routing.allocation.cluster_concurrent_rebalance: 2
+<% if_p('crate.cluster.routing.allocation.cluster_concurrent_rebalance') do |cluster_concurrent_rebalance| %>
+cluster.routing.allocation.cluster_concurrent_rebalance: <%= cluster_concurrent_rebalance %>
+<% end %>
+
+# Define the number of initial recoveries of primaries that are
+# allowed per node. Since most times local gateway is used, those
+# should be fast and we can handle more of those per node without
+# creating load.
+#
+# cluster.routing.allocation.node_initial_primaries_recoveries: 4
+<% if_p('crate.cluster.routing.allocation.node_initial_primaries_recoveries') do |node_initial_primaries_recoveries| %>
+cluster.routing.allocation.node_initial_primaries_recoveries: <%= node_initial_primaries_recoveries %>
+<% end %>
+
+# How many concurrent recoveries are allowed to happen on a node.
+#
+# cluster.routing.allocation.node_concurrent_recoveries: 2
+<% if_p('crate.cluster.routing.allocation.node_concurrent_recoveries') do |node_concurrent_recoveries| %>
+cluster.routing.allocation.node_concurrent_recoveries: <%= node_concurrent_recoveries %>
+<% end %>
+
+################################## Awareness #################################
+
+# Cluster allocation awareness allows to configure shard and replicas
+# allocation across generic attributes associated with nodes.
+
+# Define node attributes which will be used to do awareness based
+# on the allocation of a shard and its replicas.
+# Shards will relocate to even the number of shards across
+# the nodes, but a shard and its replica will not be allocated in
+# the same rack_id value.
+# The awareness attributes can hold several values
+#
+# cluster.routing.allocation.awareness.attributes:
+
+# Node attributes on which shard allocation will be forced.
+# If you know in advance the number of values an awareness attribute
+# can have and you would like to never have more replicas then
+# needed allocated on a specific group of nodes with the same awareness
+# attribute value. For that, we can force awareness on specific attributes.
+#
+# cluster.routing.allocation.awareness.force.<attribute>.values:
+
+############################### Balanced Shards ##############################
+
+# Defines the weight factor for shards allocated on a node
+# (float).
+#
+# cluster.routing.allocation.balance.shard: 0.45f
+<% if_p('crate.cluster.routing.allocation.balance.shard') do |allocation_balance_shard| %>
+cluster.routing.allocation.balance.shard: <%= allocation_balance_shard %>
+<% end %>
+
+# Defines a factor to the number of shards per index allocated on a
+# specific node (float).
+#
+# cluster.routing.allocation.balance.index: 0.5f
+<% if_p('crate.cluster.routing.allocation.balance.index') do |allocation_balance_index| %>
+cluster.routing.allocation.balance.index: <%= allocation_balance_index %>
+<% end %>
+
+# Defines a weight factor for the number of primaries of a specific
+# index allocated on a node (float).
+#
+# cluster.routing.allocation.balance.primary: 0.05f
+<% if_p('crate.cluster.routing.allocation.balance.primary') do |allocation_balance_primary| %>
+cluster.routing.allocation.balance.primary: <%= allocation_balance_primary %>
+<% end %>
+
+# Minimal optimization value of operations that should be performed
+# (non negative float).
+#
+# cluster.routing.allocation.balance.threshold: 1.0f
+<% if_p('crate.cluster.routing.allocation.balance.threshold') do |allocation_balance_threshold| %>
+cluster.routing.allocation.balance.threshold: <%= allocation_balance_threshold %>
+<% end %>
+
+####################### Cluster-Wide Allocation Filtering ####################
+
+# Place new shards only on nodes where one of the specified
+# values matches the attribute.
+#
+# cluster.routing.allocation.include.<attribute>:
+
+# Place new shards only on nodes where none of the specified
+# values matches the attribute.
+#
+# cluster.routing.allocation.exclude.<attribute>:
+
+# used to specify a number of rules, which all MUST match for
+# a node in order to allocate a shard on it.
+# This is in contrast to include which will include a node
+# if ANY rule matches.
+#
+# cluster.routing.allocation.require.<attribute>:
+
+########################## Disk-based Shard Allocation #######################
+
+# Prevent shard allocation on nodes depending on the disk
+# usage.
+#
+# cluster.routing.allocation.disk.threshold_enabled: true
+<% if_p('crate.cluster.routing.allocation.disk.threshold_enabled') do |disk_threshold_enabled| %>
+cluster.routing.allocation.disk.threshold_enabled: <%= disk_threshold_enabled %>
+<% end %>
+
+# Defines the lower disk threshold limit for shard allocations.
+# New shards will not be allocated on nodes with
+# disk usage greater than this value. It can also be set to an
+# absolute bytes value (like e.g. `500mb`)
+#
+# cluster.routing.allocation.disk.watermark.low: 85%
+<% if_p('crate.cluster.routing.allocation.disk.watermark.low') do |disk_watermark_low| %>
+cluster.routing.allocation.disk.watermark.low: <%= disk_watermark_low %>
+<% end %>
+
+# Defines the higher disk threshold limit for shard allocations.
+# The cluster will attempt to relocate existing
+# shards to another node if the disk usage on a node rises above this
+# value. It can also be set to an absolute bytes value (like e.g. `500mb`)
+#
+# cluster.routing.allocation.disk.watermark.high: 90%
+<% if_p('crate.cluster.routing.allocation.disk.watermark.high') do |disk_watermark_high| %>
+cluster.routing.allocation.disk.watermark.high: <%= disk_watermark_high %>
+<% end %>
+
+########################## Field Data Circuit Breaker #########################
+
+# The field data circuit breaker allows estimation of needed memory
+# required for loading field data into memory.
+
+# Specifies the limit for the fielddata breaker.
+#
+# indices.fielddata.breaker.limit: 60%
+<% if_p('crate.indices.fielddata.breaker.limit') do |breaker_limit| %>
+indices.fielddata.breaker.limit: <%= breaker_limit %>
+<% end %>
+
+# A constant that all field data estimations are multiplied with to
+# determine a final estimation.
+#
+# indices.fielddata.breaker.overhead: 1.0.3
+<% if_p('crate.indices.fielddata.breaker.overhead') do |breaker_overhead| %>
+indices.fielddata.breaker.overhead: <%= breaker_overhead %>
+<% end %>
+
+################################# Threadpools ################################
+
+# Every node holds several thread pools to improve how threads are
+# managed within a node. There are several pools, but the important
+# ones include: index, search, bulk, refresh
+#
+# threadpool.index.type: fixed
+# threadpool.index.queue_size: 200
+<% if_p('crate.threadpool.index.type') do |threadpool_index_type| %>
+threadpool.index.type: <%= threadpool_index_type %>
+<% end %>
+<% if_p('crate.threadpool.index.queue_size') do |threadpool_index_queue_size| %>
+threadpool.index.queue_size: <%= threadpool_index_queue_size %>
+<% end %>
+
+################################## Metadata ##################################
+
+# Defines how often the cluster collection metadata information
+# (e.g. disk usages etc.) if no concrete  event is triggered.
+#
+# cluster.info.update.interval: 30s
+<% if_p('crate.cluster.info_update_interval') do |info_update_interval| %>
+cluster.infoupdate.interval: <%= info_update_interval %>
+<% end %>
+
+################################## Slow Log ##################################
+
+# Shard level query and fetch threshold logging.
+
+#index.search.slowlog.threshold.query.warn: 10s
+<% if_p('crate.index.search.slowlog.threshold.query.warn') do |threshold_query_warn| %>
+index.search.slowlog.threshold.query.warn: <%= threshold_query_warn %>
+<% end %>
+#index.search.slowlog.threshold.query.info: 5s
+<% if_p('crate.index.search.slowlog.threshold.query.info') do |threshold_query_info| %>
+index.search.slowlog.threshold.query.info: <%= threshold_query_info %>
+<% end %>
+#index.search.slowlog.threshold.query.debug: 2s
+<% if_p('crate.index.search.slowlog.threshold.query.debug') do |threshold_query_debug| %>
+index.search.slowlog.threshold.query.debug: <%= threshold_query_debug %>
+<% end %>
+#index.search.slowlog.threshold.query.trace: 500ms
+<% if_p('crate.index.search.slowlog.threshold.query.trace') do |threshold_query_trace| %>
+index.search.slowlog.threshold.query.trace: <%= threshold_query_trace %>
+<% end %>
+
+#index.search.slowlog.threshold.fetch.warn: 1s
+<% if_p('crate.index.search.slowlog.threshold.fetch.warn') do |threshold_fetch_warn| %>
+index.search.slowlog.threshold.fetch.warn: <%= threshold_fetch_warn %>
+<% end %>
+#index.search.slowlog.threshold.fetch.info: 800ms
+<% if_p('crate.index.search.slowlog.threshold.fetch.info') do |threshold_fetch_info| %>
+index.search.slowlog.threshold.fetch.info: <%= threshold_fetch_info %>
+<% end %>
+#index.search.slowlog.threshold.fetch.debug: 500ms
+<% if_p('crate.index.search.slowlog.threshold.fetch.debug') do |threshold_fetch_debug| %>
+index.search.slowlog.threshold.fetch.debug: <%= threshold_fetch_debug %>
+<% end %>
+#index.search.slowlog.threshold.fetch.trace: 200ms
+<% if_p('crate.index.search.slowlog.threshold.fetch.trace') do |threshold_fetch_trace| %>
+index.search.slowlog.threshold.fetch.trace: <%= threshold_fetch_trace %>
+<% end %>
+
+#index.indexing.slowlog.threshold.index.warn: 10s
+<% if_p('crate.index.indexing.slowlog.threshold.index.warn') do |threshold_index_warn| %>
+index.indexing.slowlog.threshold.index.warn: <%= threshold_index_warn %>
+<% end %>
+#index.indexing.slowlog.threshold.index.info: 5s
+<% if_p('crate.index.indexing.slowlog.threshold.index.info') do |threshold_index_info| %>
+index.indexing.slowlog.threshold.index.info: <%= threshold_index_info %>
+<% end %>
+#index.indexing.slowlog.threshold.index.debug: 2s
+<% if_p('crate.index.indexing.slowlog.threshold.index.debug') do |threshold_index_debug| %>
+index.indexing.slowlog.threshold.index.debug: <%= threshold_index_debug %>
+<% end %>
+#index.indexing.slowlog.threshold.index.trace: 500ms
+<% if_p('crate.index.indexing.slowlog.threshold.index.trace') do |threshold_index_trace| %>
+index.indexing.slowlog.threshold.index.trace: <%= threshold_index_trace %>
+<% end %>
+
+################################## GC Logging ################################
+
+#monitor.jvm.gc.ParNew.warn: 1000ms
+<% if_p('crate.monitor.jvm.gc.parnew.warn') do |gc_parnew_warn| %>
+monitor.jvm.gc.ParNew.warn: <%= gc_parnew_warn %>
+<% end %>
+#monitor.jvm.gc.ParNew.info: 700ms
+<% if_p('crate.monitor.jvm.gc.parnew.info') do |gc_parnew_info| %>
+monitor.jvm.gc.ParNew.info: <%= gc_parnew_info %>
+<% end %>
+#monitor.jvm.gc.ParNew.debug: 400ms
+<% if_p('crate.monitor.jvm.gc.parnew.debug') do |gc_parnew_debug| %>
+monitor.jvm.gc.ParNew.debug: <%= gc_parnew_debug %>
+<% end %>
+
+#monitor.jvm.gc.ConcurrentMarkSweep.warn: 10s
+<% if_p('crate.monitor.jvm.gc.concurrentmarksweep.warn') do |gc_concurrentmarksweep_warn| %>
+monitor.jvm.gc.ConcurrentMarkSweep.warn: <%= gc_concurrentmarksweep_warn %>
+<% end %>
+#monitor.jvm.gc.ConcurrentMarkSweep.info: 5s
+<% if_p('crate.monitor.jvm.gc.concurrentmarksweep.info') do |gc_concurrentmarksweep_info| %>
+monitor.jvm.gc.ConcurrentMarkSweep.info: <%= gc_concurrentmarksweep_info %>
+<% end %>
+#monitor.jvm.gc.ConcurrentMarkSweep.debug: 2s
+<% if_p('crate.monitor.jvm.gc.concurrentmarksweep.debug') do |gc_concurrentmarksweep_debug| %>
+monitor.jvm.gc.ConcurrentMarkSweep.debug: <%= gc_concurrentmarksweep_debug %>
+<% end %>
+
+###################################### SQL ####################################
+
+# If disabled, queries filtering for a primary key will be broadcast to all available shards
+# instead of hitting just the related single shard.
+#
+# crate.planner.optimize_pk_queries: true
+<% if_p('crate.planner.optimize_pk_queries') do |optimize_pk_queries| %>
+crate.planner.optimize_pk_queries: <%= optimize_pk_queries %>
+<% end %>
+
+# An insert from subquery can take an enormous amount of time and ressources of
+# your cluster. To execute such queries more failsafe even with slower hardware
+# increase this timeout
+# insert_by_query.request_timeout: 1m
+<% if_p('crate.insert_by_query.request_timeout') do |insert_by_query_request_timeout| %>
+insert_by_query.request_timeout: <%= insert_by_query_request_timeout %>
+<% end %>
+
+########################## SQL Query Circuit Breaker ##########################
+
+# The query circuit breaker allows estimation of needed memory required by
+# a query.
+
+# Specifies the limit for the query breaker.
+#
+# node.breaker.query.limit: 60%
+<% if_p('crate.node_breaker.query_limit') do |breaker_query_limit| %>
+node.breaker.query.limit: <%= breaker_query_limit %>
+<% end %>
+
+# A constant that all query data estimations are multiplied with to
+# determine a final estimation.
+#
+# node.breaker.query.overhead: 1.09
+<% if_p('crate.node_breaker.query_overhead') do |breaker_query_overhead| %>
+node.breaker.query.overhead: <%= breaker_query_overhead %>
+<% end %>
+
+################################### UDC ###################################
+
+# Usage Data Collection
+#
+# If enabled crate will send usage data to the url stored in setting udc.url.
+# The sent usage data does not contain any confidential information.
+
+# enable/disable usage data collection at all
+# udc.enabled: true
+<% if_p('crate.udc.enabled') do |udc_enabled| %>
+udc.enabled: <%= udc_enabled %>
+<% end %>
+
+# The delay for first ping after start-up.
+# udc.initial_delay: 10m
+<% if_p('crate.udc.initial_delay') do |udc_initial_delay| %>
+udc.initial_delay: <%= udc_initial_delay %>
+<% end %>
+
+# The interval a ping is sent.
+# udc.interval: 24h
+<% if_p('crate.udc.interval') do |udc_interval| %>
+udc.interval: <%= udc_interval %>
+<% end %>
+
+# The url the ping is sent to.
+# udc.url: https://udc.crate.io/
+<% if_p('crate.udc.url') do |udc_url| %>
+udc.url: <%= udc_url %>
+<% end %>
+
+############################ ELASTICSEARCH HTTP REST API ############################
+
+# by default the elasticsearch HTTP REST API is disabled
+
+# WARNING: if you index data via elasticsearch and not
+# insert it via SQL you might get inconsistent data when querying
+
+# enable/disable elasticsearch HTTP REST API
+# es.api.enabled: false
+<% if_p('crate.es.api_enabled') do |es_api_enabled| %>
+es.api.enabled: <%= es_api_enabled %>
+<% end %>
+
+###################################### Blob ####################################
+
+# Path to directory where to store blob data allocated for this node.
+# By default blobs will be stored under the same path as normal data.
+# A relative path value is relative to CRATE_HOME.
+#
+# blobs.path: /path/to/blobs

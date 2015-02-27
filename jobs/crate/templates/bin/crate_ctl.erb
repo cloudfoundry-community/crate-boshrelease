@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+
+# Setup common env vars and folders
+source /var/vcap/packages/bosh-helpers/ctl_setup.sh 'crate'
+export CRATE_PID_FILE=${CRATE_PID_DIR}/crate.pid
+
+case $1 in
+
+    start)
+        pid_guard ${CRATE_PID_FILE} ${JOB_NAME}
+
+        # Create Crate user & group
+        create_group ${CRATE_GROUP}
+        create_user ${CRATE_USER} ${CRATE_GROUP}
+
+        # Start Crate service
+        exec chpst -u ${CRATE_USER}:${CRATE_GROUP} crate -d \
+            -p "${CRATE_PID_FILE}" \
+            -Des.config="${CRATE_CONF_DIR}/crate.yml" \
+            >>${CRATE_LOG_DIR}/${OUTPUT_LABEL}.stdout.log \
+            2>>${CRATE_LOG_DIR}/${OUTPUT_LABEL}.stderr.log
+        ;;
+
+    stop)
+        # Stop Crate service
+        kill_and_wait ${CRATE_PID_FILE}
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+
+esac
+exit 0
