@@ -1,0 +1,30 @@
+---
+packages:
+- name: bosh-helpers
+  version: 55717f488eb12fd47c95fd524ab1cd6304c7ce7e
+  fingerprint: 55717f488eb12fd47c95fd524ab1cd6304c7ce7e
+  sha1: 7a9f407cc46d8128e3efdc75e4c527f1534f6ad1
+  dependencies: []
+- name: crate
+  version: 65997360fbf00c7670958684f08d76ae5a78c542
+  fingerprint: 65997360fbf00c7670958684f08d76ae5a78c542
+  sha1: 70c4464cf33c0659fd91bc256f4e773150bc63cc
+  dependencies: []
+- name: openjdk7
+  version: f6161173b4566e54da8720b27830acc3d92d03f7
+  fingerprint: f6161173b4566e54da8720b27830acc3d92d03f7
+  sha1: 9b4d2da505b49c1e341b77834a15fe7a857d1894
+  dependencies: []
+jobs:
+- name: crate
+  version: ea823767be36e14bf4d1a38122fb30594cf4b44f
+  fingerprint: ea823767be36e14bf4d1a38122fb30594cf4b44f
+  sha1: ef80a369f4a3d0902ce5026ffd98c8156ff2f176
+license:
+  version: 177c113663fe9b8f50aa800f1858f3c1a59f635a
+  fingerprint: 177c113663fe9b8f50aa800f1858f3c1a59f635a
+  sha1: e96054bf9cc2e0c70a49e60462e292384b4ae9fd
+commit_hash: 5efd2bf2
+uncommitted_changes: true
+name: crate
+version: '1'
