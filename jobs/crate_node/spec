@@ -1,9 +1,9 @@
 ---
 name: crate_node
 packages:
-  - bosh-helpers
-  - crate
-  - openjdk7
+- java-common
+- openjdk
+- crate
 
 consumes:
 - name: peers
