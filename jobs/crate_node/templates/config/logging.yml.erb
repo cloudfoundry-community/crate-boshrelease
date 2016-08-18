@@ -8,18 +8,28 @@ rootLogger: INFO, console, file
 
 logger:
 #  Log action execution errors for easier debugging
-  action: DEBUG
+  action: <%= p('crate.logger.action') %>
 
-#  Peer shard recovery
-# indices.recovery: DEBUG
+# Peer shard recovery
+<% if_p('crate.logger.indices_recovery') do %>
+indices.recovery: DEBUG
+<% end %>
 
-#  Discovery
-#  Crate will discover the other nodes within its own cluster.
-#  If you want to log the discovery process, set the following:
-# discovery: TRACE
+# Discovery
+# Crate will discover the other nodes within its own cluster.
+# If you want to log the discovery process, set the following:
+<% if_p('crate.logger.discovery') do %>
+discovery: TRACE
+<% end %>
 
-# mute amazon s3 client logging a bit
-  com.amazonaws: WARN
+#  If searching or indexing starts to slow down, you may want to log that as
+#  well. Here are two prepared examples for such use cases:
+<% if_p('crate.logger.index_search_slowlog') do %>
+index.search.slowlog: TRACE, table_search_slow_log_file
+<% end %>
+<% if_p('crate.logger.index_indexing_slowlog') do %>
+index.indexing.slowlog: TRACE, table_indexing_slow_log_file
+<% end %>
 
 # Define your appenders here.
 # Like mentioned above, use the log4j prefixes to configure for example the
@@ -42,3 +52,18 @@ appender:
       type: pattern
       conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
 
+  table_search_slow_log_file:
+    type: dailyRollingFile
+    file: ${path.logs}/${cluster.name}_table_search_slowlog.log
+    datePattern: "'.'yyyy-MM-dd"
+    layout:
+      type: pattern
+      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
+
+  table_indexing_slow_log_file:
+    type: dailyRollingFile
+    file: ${path.logs}/${cluster.name}_table_indexing_slowlog.log
+    datePattern: "'.'yyyy-MM-dd"
+    layout:
+      type: pattern
+      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
