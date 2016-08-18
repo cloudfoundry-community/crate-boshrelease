@@ -11,10 +11,6 @@ export JOB_FULL="$NAME/$JOB_INDEX"
 
 export JAVA_HOME=/var/vcap/packages/openjdk
 
-export CRATE_HOME=/var/vcap/packages/crate
-export CRATE_HEAP_SIZE=<%= p('crate.jvm.memoryMo') %>
-
-
 
 export LOG_DIR=/var/vcap/sys/log/crate
 export RUN_DIR=/var/vcap/sys/run/crate

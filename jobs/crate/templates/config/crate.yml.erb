@@ -197,8 +197,8 @@ path.conf: /var/vcap/jobs/crate/config
 
 # Path to directory where to store table data allocated for this node.
 #
-path.path.data: /var/vcap/store/crate
-an optionally include more than one location, causing data to be striped across
+path.data: /var/vcap/store/crate
+#an optionally include more than one location, causing data to be striped across
 # the locations (a la RAID 0) on a file level, favouring locations with most free
 # space on creation. For example:
 #
