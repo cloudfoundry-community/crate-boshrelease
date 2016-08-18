@@ -1,0 +1,9 @@
+---
+crate/crate-0.55.3.tar.gz:
+  object_id: efa14336-4420-40a1-9672-7323113df54c
+  sha: 198a26deae2b80af1d32259dfee6976ec8b5ac24
+  size: 46445396
+openjdk/openjdk.tar.gz:
+  object_id: beb454c4-cd12-4870-a626-a929a107f140
+  sha: 9fc65908420c92047346e5bcc66fee0aad422c5e
+  size: 126476497
