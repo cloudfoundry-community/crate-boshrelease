@@ -17,7 +17,7 @@ case $1 in
     # store pid in $PIDFILE
     echo $$ > $PIDFILE
 
-	exec chpst -u vcap:vcap  /var/vcap/packages/crate/bin/crate -Des.path.home=/var/vcap/jobs/crate_node
+	exec chpst -u vcap:vcap  /var/vcap/packages/crate/bin/crate -Des.path.home=/var/vcap/jobs/crate
                 >>$LOG_DIR/$JOB_NAME.log 2>&1
     ;;
 
