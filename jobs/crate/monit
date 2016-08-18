@@ -1,5 +1,5 @@
-check process crate_node
-  with pidfile /var/vcap/sys/run/crate_node/crate_node.pid
-  start program "/var/vcap/jobs/crate_node/bin/monit_debugger crate_node_ctl '/var/vcap/jobs/crate_node/bin/ctl start'"
-  stop program "/var/vcap/jobs/crate_node/bin/monit_debugger crate_node_ctl '/var/vcap/jobs/crate_node/bin/ctl stop'"
+check process crate
+  with pidfile /var/vcap/sys/run/crate/crate.pid
+  start program "/var/vcap/jobs/crate/bin/monit_debugger crate_ctl '/var/vcap/jobs/crate/bin/ctl start'"
+  stop program "/var/vcap/jobs/crate/bin/monit_debugger crate_ctl '/var/vcap/jobs/crate/bin/ctl stop'"
   group vcap

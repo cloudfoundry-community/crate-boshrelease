@@ -193,11 +193,11 @@ index.number_of_replicas: <%= number_of_replicas %>
 
 # Path to directory containing configuration (this file and logging.yml):
 #
-path.conf: /var/vcap/jobs/crate_node/config
+path.conf: /var/vcap/jobs/crate/config
 
 # Path to directory where to store table data allocated for this node.
 #
-path.path.data: /var/vcap/store/crate_node
+path.path.data: /var/vcap/store/crate
 an optionally include more than one location, causing data to be striped across
 # the locations (a la RAID 0) on a file level, favouring locations with most free
 # space on creation. For example:
@@ -210,7 +210,7 @@ path.work: /var/vcap/sys/tmp/crate
 
 # Path to log files:
 #
-path.logs:path.logs: /var/vcap/sys/log/crate_node 
+path.logs:path.logs: /var/vcap/sys/log/crate 
  where plugins are installed:
 #
 # path.plugins: /path/to/plugins
