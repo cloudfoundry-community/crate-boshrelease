@@ -1,5 +1,5 @@
 ---
-name: crate_node
+name: crate
 packages:
 - java-common
 - openjdk
