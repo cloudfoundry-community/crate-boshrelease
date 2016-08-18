@@ -1,16 +1,26 @@
 ---
 name: crate
-
 packages:
-  - bosh-helpers
-  - crate
-  - openjdk7
+- java-common
+- openjdk
+- crate
 
+consumes:
+- name: peers
+  type: crate_peers
+  
+provides:
+- name: peers
+  type: crate_peers
+ 
 templates:
-  bin/crate_ctl.erb: bin/crate_ctl
-  bin/job_properties.sh.erb: bin/job_properties.sh
+  bin/ctl: bin/ctl
+  bin/monit_debugger: bin/monit_debugger
+  data/properties.sh.erb: data/properties.sh
+  helpers/ctl_setup.sh: helpers/ctl_setup.sh
+  helpers/ctl_utils.sh: helpers/ctl_utils.sh
   config/crate.yml.erb: config/crate.yml
-  config/logging.yml.erb: config/logging.yml
+  config/logging.yml.erb: config/logging.yml  
 
 properties:
   crate.user:

@@ -1,7 +1,0 @@
----
-builds:
-  177c113663fe9b8f50aa800f1858f3c1a59f635a:
-    version: 177c113663fe9b8f50aa800f1858f3c1a59f635a
-    sha1: e96054bf9cc2e0c70a49e60462e292384b4ae9fd
-    blobstore_id: aee8f8a5-5d44-4e32-a6a0-0075759c0b50
-format-version: '2'

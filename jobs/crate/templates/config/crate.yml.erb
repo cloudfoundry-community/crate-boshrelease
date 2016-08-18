@@ -1,15 +1,15 @@
-######################### Crate Configuration Example #########################
+######################### Crate Configuration File ############################
 
 # The default configuration offers the ability to use Crate right away.
 # The purpose of this file is to give operators an overview of the various
 # different configuration settings. To read the full documentation go to
-# <https://docs.crate.io/>
+# <https://crate.io/docs/>
 
-# As mentioned before, you can use Crate right away. For fine-tuning consider
-# to configure Crate as you need or want it to behave.
 # Use this file to fine-tune your Crate cluster. If you have any questions
-# you are very welcome to conact us on our IRC channel #crate
-# (irc.freenode.net).
+# you are very welcome to contact us on our Community Channel on Slack
+# <https://crate.io/docs/support/slackin/>.
+
+
 
 # Any element in the configuration can be replaced with environment variables
 # by placing them in ${...} notation. For example:
@@ -29,8 +29,8 @@ cluster.name: "<%= p('crate.cluster.name') %>"
 #
 # The minimum data availability the cluster needs to ensure when a certain node
 # is shut down. By default the cluster ensures availability of primary shards
-# but not replicas. Other options are "all" and "none".
-#
+# but not replicas. Other options are "full" and "none".
+
 # cluster.graceful_stop.min_availability: primaries
 <% if_p('crate.cluster.graceful_stop.min_availability') do |graceful_stop_min_availability| %>
 cluster.graceful_stop.min_availability: <%= graceful_stop_min_availability %>
@@ -198,8 +198,7 @@ path.conf: /var/vcap/jobs/crate/config
 # Path to directory where to store table data allocated for this node.
 #
 path.data: /var/vcap/store/crate
-#
-# Can optionally include more than one location, causing data to be striped across
+#an optionally include more than one location, causing data to be striped across
 # the locations (a la RAID 0) on a file level, favouring locations with most free
 # space on creation. For example:
 #
@@ -211,11 +210,9 @@ path.work: /var/vcap/sys/tmp/crate
 
 # Path to log files:
 #
-path.logs: /var/vcap/sys/log/crate
-
-# Path to where plugins are installed:
+path.logs: /var/vcap/sys/log/crate 
 #
-# path.plugins: /path/to/plugins
+path.plugins: /var/vcap/packages/crate/plugins
 
 # path:
 #     logs: /var/log/crate

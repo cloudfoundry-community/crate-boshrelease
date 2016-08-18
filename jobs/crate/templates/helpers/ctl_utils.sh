@@ -1,37 +1,9 @@
-#!/usr/bin/env bash
+# Helper functions used by ctl scripts
 
-##
-# Helper functions used by control scripts
-#
-
-##
-# Creates a user grouo
-#
-# Example usage:
-# create_group group_name
-# create_group vcap
-create_group() {
-  group_name=$1
-  getent group $group_name &>/dev/null || groupadd $group_name
-}
-
-##
-# Creates a user
-#
-# Example usage:
-# create_user user_name group_name
-# create_user vcap vcap
-create_user() {
-  user_name=$1
-  group_name=$2
-  id $user_name &>/dev/null || useradd -s /sbin/nologin -r -M $user_name -G $group_name
-}
-
-##
-# Links a job file into a package
-#
+# links a job file (probably a config file) into a package
 # Example usage:
 # link_job_file_to_package config/redis.yml [config/redis.yml]
+# link_job_file_to_package config/wp-config.php wp-config.php
 link_job_file_to_package() {
   source_job_file=$1
   target_package_file=${2:-$source_job_file}
@@ -40,9 +12,7 @@ link_job_file_to_package() {
   link_job_file ${source_job_file} ${full_package_file}
 }
 
-##
-# Links a job file somewhere
-#
+# links a job file (probably a config file) somewhere
 # Example usage:
 # link_job_file config/bashrc /home/vcap/.bashrc
 link_job_file() {
@@ -53,7 +23,7 @@ link_job_file() {
   echo link_job_file ${full_job_file} ${target_file}
   if [[ ! -f ${full_job_file} ]]
   then
-    echo "File ${full_job_file} does not exist"
+    echo "file to link ${full_job_file} does not exist"
   else
     # Create/recreate the symlink to current job file
     # If another process is using the file, it won't be
@@ -63,23 +33,14 @@ link_job_file() {
   fi
 }
 
-##
-# Redirects output
-#
-# Example usage:
-# redirect_output jobname
+# If loaded within monit ctl scripts then pipe output
+# If loaded from 'source ../utils.sh' then normal STDOUT
 redirect_output() {
   SCRIPT=$1
-  mkdir -p $HOME/sys/log/monit
-  exec 1>> $HOME/sys/log/monit/$SCRIPT.log
-  exec 2>> $HOME/sys/log/monit/$SCRIPT.err.log
+  mkdir -p /var/vcap/sys/log/monit
+  exec 1>> /var/vcap/sys/log/monit/$SCRIPT.log 2>&1
 }
 
-##
-# Guard for pidfiles
-#
-# Example usage:
-# pid_guard /var/vcap/sys/run/pidfile.pid jobname
 pid_guard() {
   pidfile=$1
   name=$2
@@ -191,15 +152,4 @@ check_nfs_mount() {
       exit 1
     fi
   fi
-}
-
-public_hostname() {
-  public_hostname=""
-
-  # AWS EC2
-  if ec2_hostname="$( curl -sSf --connect-timeout 1 http://169.254.169.254/latest/meta-data/public-hostname 2> /dev/null)"; then
-    public_hostname=$ec2_hostname
-  fi
-
-  echo $public_hostname
 }

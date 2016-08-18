@@ -1,9 +1,9 @@
 ---
-crate/crate-0.47.4.tar.gz:
-  object_id: 49f4d2bf-4648-4462-8f90-39b21e0f82ab
-  sha: f105ef274187e01fbc20ef18a03f08c018d4a8b0
-  size: 51317894
-openjdk7/openjdk-1.7.0-u60-unofficial-linux-amd64-image.zip:
-  object_id: bfb587e1-aa72-4eec-8868-57076bef33dc
-  sha: 0031dd4ecb29e5d405a591cbab3a03c1b76684e1
-  size: 70706293
+crate/crate-0.55.3.tar.gz:
+  object_id: efa14336-4420-40a1-9672-7323113df54c
+  sha: 198a26deae2b80af1d32259dfee6976ec8b5ac24
+  size: 46445396
+openjdk/openjdk.tar.gz:
+  object_id: beb454c4-cd12-4870-a626-a929a107f140
+  sha: 9fc65908420c92047346e5bcc66fee0aad422c5e
+  size: 126476497

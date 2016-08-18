@@ -1,5 +1,5 @@
 ---
 name: crate
-dependencies: {}
+dependencies: []
 files:
-  - crate/crate-0.47.4.tar.gz
+- crate/crate-0.55.3.tar.gz
