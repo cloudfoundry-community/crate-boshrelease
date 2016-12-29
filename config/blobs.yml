@@ -7,3 +7,7 @@ openjdk/openjdk.tar.gz:
   object_id: beb454c4-cd12-4870-a626-a929a107f140
   sha: 9fc65908420c92047346e5bcc66fee0aad422c5e
   size: 126476497
+crate/crate-1.0.1.tar.gz:
+  object_id: af03fb0b-f23f-461b-af0a-48ce7d19ae12
+  sha: 04ba03a24f11b702a0a3722f961cdcc77eeb9912
+  size: 47445718
