@@ -1,0 +1,30 @@
+---
+packages:
+- name: crate
+  version: 1881b894cac2ceb25eb639de6710db57c6de1819
+  fingerprint: 1881b894cac2ceb25eb639de6710db57c6de1819
+  sha1: e8c9fd31558f0e41ba273257253fb94ce4a08146
+  dependencies: []
+- name: openjdk
+  version: 93c072891062f43e6a7fad1f3232064da90429af
+  fingerprint: 93c072891062f43e6a7fad1f3232064da90429af
+  sha1: f5de67a02204b2cae64ee5a64e0a59df91bccb28
+  dependencies: []
+- name: java-common
+  version: 018744938b5a691527c626963211f4ba4b5772bf
+  fingerprint: 018744938b5a691527c626963211f4ba4b5772bf
+  sha1: 25721bcf6e5e65a87a81977f8c1f6f597004993d
+  dependencies: []
+jobs:
+- name: crate
+  version: 797b57370e2f78c9644ca66f15f9ad6e346ba222
+  fingerprint: 797b57370e2f78c9644ca66f15f9ad6e346ba222
+  sha1: ee2d35a30d8736acc69effe9ea024f7dfa666e49
+license:
+  version: 47a88f1905828cd19c5bfd92c1d4946ad2bba58c
+  fingerprint: 47a88f1905828cd19c5bfd92c1d4946ad2bba58c
+  sha1: 57e824519421d9f668956baaf2329a1909c78a6a
+commit_hash: 3ae2c1dd
+uncommitted_changes: true
+name: crate
+version: '3'
