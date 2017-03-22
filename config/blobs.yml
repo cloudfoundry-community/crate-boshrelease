@@ -11,3 +11,7 @@ crate/crate-1.0.1.tar.gz:
   object_id: af03fb0b-f23f-461b-af0a-48ce7d19ae12
   sha: 04ba03a24f11b702a0a3722f961cdcc77eeb9912
   size: 47445718
+crate/crate-1.0.5.tar.gz:
+  object_id: 0aa43960-187f-4dcb-9aa0-2b5aeb4b7a53
+  sha: 1cde79b6bd9e32343603e36cc254e816fb82a1f6
+  size: 47447631

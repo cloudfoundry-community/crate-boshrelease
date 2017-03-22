@@ -8,7 +8,7 @@ CPUS=$(grep -c ^processor /proc/cpuinfo)
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME=/var/vcap
 
-CRATE_VERSION="1.0.1"
+CRATE_VERSION="1.0.5"
 tar xzvf ${BOSH_COMPILE_TARGET}/crate/crate-${CRATE_VERSION}.tar.gz
 if [[ $? != 0 ]] ; then
   echo "Failed extracting Crate ${CRATE_VERSION}"
